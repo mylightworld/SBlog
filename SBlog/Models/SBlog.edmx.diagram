@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="458ad93c226149ac836f5490844d574d" Name="Diagram1">
+        <EntityTypeShape EntityType="SBlogModels.Category" Width="1.5" PointX="3" PointY="9.625" />
+        <EntityTypeShape EntityType="SBlogModels.Config" Width="1.5" PointX="5.75" PointY="0.75" />
+        <EntityTypeShape EntityType="SBlogModels.PostPrais" Width="1.5" PointX="10.5" PointY="7.75" />
+        <EntityTypeShape EntityType="SBlogModels.Post" Width="1.5" PointX="5.25" PointY="9.125" />
+        <EntityTypeShape EntityType="SBlogModels.PostTag" Width="1.5" PointX="7.5" PointY="7.625" />
+        <EntityTypeShape EntityType="SBlogModels.Role" Width="1.5" PointX="0.75" PointY="1.125" />
+        <EntityTypeShape EntityType="SBlogModels.Tag" Width="1.5" PointX="3" PointY="6.125" />
+        <EntityTypeShape EntityType="SBlogModels.UserRole" Width="1.5" PointX="3" PointY="3" />
+        <EntityTypeShape EntityType="SBlogModels.User" Width="1.5" PointX="0.75" PointY="4.375" />
+        <AssociationConnector Association="SBlogModels.FK_Categories_Categories" />
+        <AssociationConnector Association="SBlogModels.FK_Categories_Users" />
+        <AssociationConnector Association="SBlogModels.FK_Posts_Categories" />
+        <AssociationConnector Association="SBlogModels.FK_PostPraises_Posts" />
+        <AssociationConnector Association="SBlogModels.FK_PostPraises_Users" />
+        <AssociationConnector Association="SBlogModels.FK_PostTags_Posts" />
+        <AssociationConnector Association="SBlogModels.FK_PostTags_Tags" />
+        <AssociationConnector Association="SBlogModels.FK_PostTags_Users" />
+        <AssociationConnector Association="SBlogModels.FK_UserRoles_Roles" />
+        <AssociationConnector Association="SBlogModels.FK_Tags_Users" />
+        <AssociationConnector Association="SBlogModels.FK_UserRoles_Users" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
