@@ -39,7 +39,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="PagedList">
+      <HintPath>..\packages\PagedList.1.17.0.0\lib\net40\PagedList.dll</HintPath>
+    </Reference>
+    <Reference Include="PagedList.Mvc">
+      <HintPath>..\packages\PagedList.Mvc.4.5.0.0\lib\net40\PagedList.Mvc.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -103,6 +113,10 @@
       <Private>True</Private>
       <HintPath>..\packages\Antlr.3.4.1.9004\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="XmlRpcMvc, Version=0.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\XmlRpcMvc.0.2.2\lib\net40\XmlRpcMvc.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
@@ -160,33 +174,48 @@
     <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
+    <Compile Include="Areas\Admin\Controllers\BaseController.cs" />
+    <Compile Include="Areas\Admin\Controllers\CategoryController.cs" />
+    <Compile Include="Areas\Admin\Controllers\HomeController.cs" />
+    <Compile Include="Areas\Admin\Controllers\AccountController.cs" />
+    <Compile Include="Areas\Admin\Controllers\PostController.cs" />
+    <Compile Include="Areas\Admin\Controllers\RoleController.cs" />
     <Compile Include="Business\AccountBll.cs" />
+    <Compile Include="Business\PostBll.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\PostController.cs" />
+    <Compile Include="Controllers\XmlRpcController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\CommonHelper.cs" />
     <Compile Include="Helpers\CookieHelper.cs" />
-    <Compile Include="Helpers\DbHelper.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\EncrypHelper.cs" />
+    <Compile Include="Helpers\ExtentionHelper.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Helpers\FilterHelper.cs" />
     <Compile Include="Helpers\GlobalHelper.cs" />
-    <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Category.cs">
       <DependentUpon>SBlog.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CategoryModels.cs" />
     <Compile Include="Models\Config.cs">
       <DependentUpon>SBlog.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\Medium.cs">
+      <DependentUpon>SBlog.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Post.cs">
       <DependentUpon>SBlog.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PostModels.cs" />
     <Compile Include="Models\PostPrais.cs">
       <DependentUpon>SBlog.tt</DependentUpon>
     </Compile>
@@ -222,11 +251,252 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="XmlRpc\MetaWeblogApi.cs" />
+    <Compile Include="XmlRpc\Models\BlogInfo.cs" />
+    <Compile Include="XmlRpc\Models\CategoryInfo.cs" />
+    <Compile Include="XmlRpc\Models\MediaObject.cs" />
+    <Compile Include="XmlRpc\Models\MediaObjectInfo.cs" />
+    <Compile Include="XmlRpc\Models\PostInfo.cs" />
+    <Compile Include="XmlRpc\Models\UserInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Readme\XmlRpcMvc.readme.txt" />
+    <Content Include="Areas\Admin\Content\post.css" />
+    <Content Include="Areas\Admin\Content\Site.css" />
+    <Content Include="Areas\Admin\Scripts\post.js" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\CKEditor\adapters\jquery.js" />
+    <Content Include="Content\CKEditor\build-config.js" />
+    <Content Include="Content\CKEditor\ckeditor.js" />
+    <Content Include="Content\CKEditor\config.js" />
+    <Content Include="Content\CKEditor\contents.css" />
+    <Content Include="Content\CKEditor\lang\af.js" />
+    <Content Include="Content\CKEditor\lang\ar.js" />
+    <Content Include="Content\CKEditor\lang\bg.js" />
+    <Content Include="Content\CKEditor\lang\bn.js" />
+    <Content Include="Content\CKEditor\lang\bs.js" />
+    <Content Include="Content\CKEditor\lang\ca.js" />
+    <Content Include="Content\CKEditor\lang\cs.js" />
+    <Content Include="Content\CKEditor\lang\cy.js" />
+    <Content Include="Content\CKEditor\lang\da.js" />
+    <Content Include="Content\CKEditor\lang\de.js" />
+    <Content Include="Content\CKEditor\lang\el.js" />
+    <Content Include="Content\CKEditor\lang\en-au.js" />
+    <Content Include="Content\CKEditor\lang\en-ca.js" />
+    <Content Include="Content\CKEditor\lang\en-gb.js" />
+    <Content Include="Content\CKEditor\lang\en.js" />
+    <Content Include="Content\CKEditor\lang\eo.js" />
+    <Content Include="Content\CKEditor\lang\es.js" />
+    <Content Include="Content\CKEditor\lang\et.js" />
+    <Content Include="Content\CKEditor\lang\eu.js" />
+    <Content Include="Content\CKEditor\lang\fa.js" />
+    <Content Include="Content\CKEditor\lang\fi.js" />
+    <Content Include="Content\CKEditor\lang\fo.js" />
+    <Content Include="Content\CKEditor\lang\fr-ca.js" />
+    <Content Include="Content\CKEditor\lang\fr.js" />
+    <Content Include="Content\CKEditor\lang\gl.js" />
+    <Content Include="Content\CKEditor\lang\gu.js" />
+    <Content Include="Content\CKEditor\lang\he.js" />
+    <Content Include="Content\CKEditor\lang\hi.js" />
+    <Content Include="Content\CKEditor\lang\hr.js" />
+    <Content Include="Content\CKEditor\lang\hu.js" />
+    <Content Include="Content\CKEditor\lang\id.js" />
+    <Content Include="Content\CKEditor\lang\is.js" />
+    <Content Include="Content\CKEditor\lang\it.js" />
+    <Content Include="Content\CKEditor\lang\ja.js" />
+    <Content Include="Content\CKEditor\lang\ka.js" />
+    <Content Include="Content\CKEditor\lang\km.js" />
+    <Content Include="Content\CKEditor\lang\ko.js" />
+    <Content Include="Content\CKEditor\lang\ku.js" />
+    <Content Include="Content\CKEditor\lang\lt.js" />
+    <Content Include="Content\CKEditor\lang\lv.js" />
+    <Content Include="Content\CKEditor\lang\mk.js" />
+    <Content Include="Content\CKEditor\lang\mn.js" />
+    <Content Include="Content\CKEditor\lang\ms.js" />
+    <Content Include="Content\CKEditor\lang\nb.js" />
+    <Content Include="Content\CKEditor\lang\nl.js" />
+    <Content Include="Content\CKEditor\lang\no.js" />
+    <Content Include="Content\CKEditor\lang\pl.js" />
+    <Content Include="Content\CKEditor\lang\pt-br.js" />
+    <Content Include="Content\CKEditor\lang\pt.js" />
+    <Content Include="Content\CKEditor\lang\ro.js" />
+    <Content Include="Content\CKEditor\lang\ru.js" />
+    <Content Include="Content\CKEditor\lang\si.js" />
+    <Content Include="Content\CKEditor\lang\sk.js" />
+    <Content Include="Content\CKEditor\lang\sl.js" />
+    <Content Include="Content\CKEditor\lang\sq.js" />
+    <Content Include="Content\CKEditor\lang\sr-latn.js" />
+    <Content Include="Content\CKEditor\lang\sr.js" />
+    <Content Include="Content\CKEditor\lang\sv.js" />
+    <Content Include="Content\CKEditor\lang\th.js" />
+    <Content Include="Content\CKEditor\lang\tr.js" />
+    <Content Include="Content\CKEditor\lang\tt.js" />
+    <Content Include="Content\CKEditor\lang\ug.js" />
+    <Content Include="Content\CKEditor\lang\uk.js" />
+    <Content Include="Content\CKEditor\lang\vi.js" />
+    <Content Include="Content\CKEditor\lang\zh-cn.js" />
+    <Content Include="Content\CKEditor\lang\zh.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\a11yhelp.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\ar.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\bg.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\ca.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\cs.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\cy.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\da.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\de.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\el.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\en-gb.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\en.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\eo.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\es.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\et.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\fa.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\fi.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\fr-ca.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\fr.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\gl.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\gu.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\he.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\hi.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\hr.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\hu.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\id.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\it.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\ja.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\km.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\ko.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\ku.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\lt.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\lv.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\mk.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\mn.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\nb.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\nl.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\no.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\pl.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\pt-br.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\pt.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\ro.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\ru.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\si.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\sk.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\sl.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\sq.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\sr-latn.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\sr.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\sv.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\th.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\tr.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\tt.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\ug.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\uk.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\vi.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\zh-cn.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\zh.js" />
+    <Content Include="Content\CKEditor\plugins\a11yhelp\dialogs\lang\_translationstatus.txt" />
+    <Content Include="Content\CKEditor\plugins\about\dialogs\about.js" />
+    <Content Include="Content\CKEditor\plugins\about\dialogs\hidpi\logo_ckeditor.png" />
+    <Content Include="Content\CKEditor\plugins\about\dialogs\logo_ckeditor.png" />
+    <Content Include="Content\CKEditor\plugins\clipboard\dialogs\paste.js" />
+    <Content Include="Content\CKEditor\plugins\dialog\dialogDefinition.js" />
+    <Content Include="Content\CKEditor\plugins\icons.png" />
+    <Content Include="Content\CKEditor\plugins\icons_hidpi.png" />
+    <Content Include="Content\CKEditor\plugins\image\dialogs\image.js" />
+    <Content Include="Content\CKEditor\plugins\image\images\noimage.png" />
+    <Content Include="Content\CKEditor\plugins\link\dialogs\anchor.js" />
+    <Content Include="Content\CKEditor\plugins\link\dialogs\link.js" />
+    <Content Include="Content\CKEditor\plugins\link\images\anchor.png" />
+    <Content Include="Content\CKEditor\plugins\link\images\hidpi\anchor.png" />
+    <Content Include="Content\CKEditor\plugins\magicline\images\hidpi\icon-rtl.png" />
+    <Content Include="Content\CKEditor\plugins\magicline\images\hidpi\icon.png" />
+    <Content Include="Content\CKEditor\plugins\magicline\images\icon-rtl.png" />
+    <Content Include="Content\CKEditor\plugins\magicline\images\icon.png" />
+    <Content Include="Content\CKEditor\plugins\pastefromword\filter\default.js" />
+    <Content Include="Content\CKEditor\plugins\scayt\dialogs\options.js" />
+    <Content Include="Content\CKEditor\plugins\scayt\dialogs\toolbar.css" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\ar.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\bg.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\ca.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\cs.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\cy.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\de.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\el.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\en-gb.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\en.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\eo.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\es.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\et.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\fa.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\fi.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\fr-ca.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\fr.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\gl.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\he.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\hr.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\hu.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\id.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\it.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\ja.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\km.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\ku.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\lv.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\nb.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\nl.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\no.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\pl.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\pt-br.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\pt.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\ru.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\si.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\sk.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\sl.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\sq.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\sv.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\th.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\tr.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\tt.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\ug.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\uk.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\vi.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\zh-cn.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\zh.js" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\lang\_translationstatus.txt" />
+    <Content Include="Content\CKEditor\plugins\specialchar\dialogs\specialchar.js" />
+    <Content Include="Content\CKEditor\plugins\tabletools\dialogs\tableCell.js" />
+    <Content Include="Content\CKEditor\plugins\table\dialogs\table.js" />
+    <Content Include="Content\CKEditor\plugins\wsc\dialogs\ciframe.html" />
+    <Content Include="Content\CKEditor\plugins\wsc\dialogs\tmpFrameset.html" />
+    <Content Include="Content\CKEditor\plugins\wsc\dialogs\wsc.css" />
+    <Content Include="Content\CKEditor\plugins\wsc\dialogs\wsc.js" />
+    <Content Include="Content\CKEditor\plugins\wsc\dialogs\wsc_ie.js" />
+    <Content Include="Content\CKEditor\skins\moono\dialog.css" />
+    <Content Include="Content\CKEditor\skins\moono\dialog_ie.css" />
+    <Content Include="Content\CKEditor\skins\moono\dialog_ie7.css" />
+    <Content Include="Content\CKEditor\skins\moono\dialog_ie8.css" />
+    <Content Include="Content\CKEditor\skins\moono\dialog_iequirks.css" />
+    <Content Include="Content\CKEditor\skins\moono\editor.css" />
+    <Content Include="Content\CKEditor\skins\moono\editor_gecko.css" />
+    <Content Include="Content\CKEditor\skins\moono\editor_ie.css" />
+    <Content Include="Content\CKEditor\skins\moono\editor_ie7.css" />
+    <Content Include="Content\CKEditor\skins\moono\editor_ie8.css" />
+    <Content Include="Content\CKEditor\skins\moono\editor_iequirks.css" />
+    <Content Include="Content\CKEditor\skins\moono\icons.png" />
+    <Content Include="Content\CKEditor\skins\moono\icons_hidpi.png" />
+    <Content Include="Content\CKEditor\skins\moono\images\arrow.png" />
+    <Content Include="Content\CKEditor\skins\moono\images\close.png" />
+    <Content Include="Content\CKEditor\skins\moono\images\hidpi\close.png" />
+    <Content Include="Content\CKEditor\skins\moono\images\hidpi\lock-open.png" />
+    <Content Include="Content\CKEditor\skins\moono\images\hidpi\lock.png" />
+    <Content Include="Content\CKEditor\skins\moono\images\hidpi\refresh.png" />
+    <Content Include="Content\CKEditor\skins\moono\images\lock-open.png" />
+    <Content Include="Content\CKEditor\skins\moono\images\lock.png" />
+    <Content Include="Content\CKEditor\skins\moono\images\refresh.png" />
+    <Content Include="Content\CKEditor\styles.js" />
     <Content Include="Content\ConfigureAuthDialog[1].png" />
+    <Content Include="Content\PagedList.css" />
+    <Content Include="Content\Templates\ForgotPassword.html" />
+    <Content Include="Content\Templates\EmailActivation.html" />
     <Content Include="Content\Templates\RegisterEmailActivation.html" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -252,6 +522,27 @@
       <DependentUpon>SBlog.edmx</DependentUpon>
       <LastGenOutput>SBlog.cs</LastGenOutput>
     </Content>
+    <Content Include="Areas\Admin\Views\web.config" />
+    <Content Include="Areas\Admin\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\_Layout.cshtml" />
+    <Content Include="Areas\Admin\Views\Home\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Role\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Role\ChangeRoles.cshtml" />
+    <Content Include="Areas\Admin\Views\Category\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Category\CreateOrEdit.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\_LoadCategory.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\_LoadCategories.cshtml" />
+    <Content Include="Areas\Admin\Views\Post\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\Post\CreateOrEdit.cshtml" />
+    <Content Include="Content\CKEditor\CHANGES.md" />
+    <Content Include="Content\CKEditor\LICENSE.md" />
+    <Content Include="Content\CKEditor\plugins\scayt\LICENSE.md" />
+    <Content Include="Content\CKEditor\plugins\scayt\README.md" />
+    <Content Include="Content\CKEditor\plugins\wsc\LICENSE.md" />
+    <Content Include="Content\CKEditor\plugins\wsc\README.md" />
+    <Content Include="Content\CKEditor\README.md" />
+    <Content Include="Content\CKEditor\skins\moono\readme.md" />
+    <None Include="Properties\PublishProfiles\SBlog-Publish.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -264,7 +555,9 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -290,8 +583,8 @@
     <Content Include="Views\Account\ForgotPasswordConfirmation.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Account\ChangePassword.cshtml" />
     <Content Include="Views\Account\ResetPassword.cshtml" />
-    <Content Include="Views\Account\ResetPasswordConfirmation.cshtml" />
     <Content Include="Views\Account\SendCode.cshtml" />
     <Content Include="Views\Account\VerifyCode.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
@@ -300,10 +593,25 @@
     <Content Include="Views\Account\Activate.cshtml" />
     <Content Include="Views\Account\ActivateSuccess.cshtml" />
     <Content Include="Views\Account\ActivateFailed.cshtml" />
+    <Content Include="Views\Shared\NoResource.cshtml" />
+    <Content Include="Views\Account\SentActivateEmail.cshtml" />
+    <Content Include="Views\Account\SentActivateEmailSuccess.cshtml" />
+    <Content Include="Views\Account\SentActivateEmailFailed.cshtml" />
+    <Content Include="Views\Account\Settings.cshtml" />
+    <Content Include="Views\Shared\_Message.cshtml" />
+    <Content Include="Views\Account\ResetPasswordSuccess.cshtml" />
+    <Content Include="Views\Account\ResetPasswordFailed.cshtml" />
+    <Content Include="Views\Account\SentForgotPasswordEmailSuccess.cshtml" />
+    <Content Include="Views\Account\SentForgotPasswordEmailFailed.cshtml" />
+    <Content Include="Views\Post\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Areas\Admin\Models\" />
+    <Folder Include="Areas\Admin\Views\Account\" />
+    <Folder Include="Areas\Admin\Views\Base\" />
     <Folder Include="Views\Base\" />
+    <Folder Include="Views\MetaWeblog\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

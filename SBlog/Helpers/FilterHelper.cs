@@ -10,9 +10,9 @@ namespace SBlog.Helpers
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            if (CookieHelper.IsLogin)
+            if (!CookieHelper.IsLogin && !filterContext.RequestContext.HttpContext.Request.RawUrl.ToLower().StartsWith("/account/login"))
             {
-                filterContext.Result = new RedirectResult("/");
+                filterContext.Result = new RedirectResult("/account/login");
             }
             base.OnActionExecuting(filterContext);
         }
@@ -50,9 +50,9 @@ namespace SBlog.Helpers
                 }
             }
 
-            if (!CookieHelper.IsLogin && !validate && !filterContext.RequestContext.HttpContext.Request.RawUrl.StartsWith("/admin/user/login"))
+            if (!CookieHelper.IsLogin && !validate && !filterContext.RequestContext.HttpContext.Request.RawUrl.ToLower().StartsWith("/admin/login"))
             {
-                response.Redirect("/admin/user/login");
+                response.Redirect("/admin/login");
             }
 
             base.OnActionExecuting(filterContext);

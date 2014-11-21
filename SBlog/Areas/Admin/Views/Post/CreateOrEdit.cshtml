@@ -1,0 +1,79 @@
+﻿@model SBlog.Models.PostModel
+@{
+    ViewBag.Title = (Model.Id > 0 ? "修改" : "创建") + "文章";
+}
+
+<h2>@(ViewBag.Title)</h2>
+<hr />
+
+@section Csses{
+    @Styles.Render("~/content/css/admin/post")
+}
+
+@section Scripts{
+    @Scripts.Render("~/bundles/admin/post")
+    <script src="~/Content/CKEditor/ckeditor.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            CKEDITOR.replace('Description');
+
+        });
+    </script>
+}
+
+<div class="row-fluid">
+    <form method="post" action="/admin/post/@(Model.Id==0?"create":"edit")/@Model.Id">
+        @Html.ValidationSummary("", new { @class = "text-danger" })
+        <div class="form-group row">
+            @Html.LabelFor(m => m.Title, new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.Title, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group row">
+            @Html.LabelFor(m => m.CategoryId, new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.Partial("_LoadCategories", (int)(ViewBag.cid ?? 0))
+                @Html.HiddenFor(x => x.CategoryId)
+            </div>
+        </div>
+        <div class="form-group row">
+            @Html.LabelFor(m => m.ShortDesc, new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(m => m.ShortDesc, new { @class = "form-control text-area" })
+            </div>
+        </div>
+        <div class="form-group row">
+            @Html.LabelFor(m => m.SEOTitle, new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.SEOTitle, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group row">
+            @Html.LabelFor(m => m.SEOKeyword, new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(m => m.SEOKeyword, new { @class = "form-control text-area" })
+            </div>
+        </div>
+        <div class="form-group row">
+            @Html.LabelFor(m => m.SEODescription, new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(m => m.SEODescription, new { @class = "form-control text-area" })
+            </div>
+        </div>
+        <div class="form-group row">
+            @Html.LabelFor(m => m.Description, new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(m => m.Description, new { @class = "form-control text-area" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <input type="submit" value="提交" /> | <a href="/admin/post">返回</a>
+                @Html.HiddenFor(x => x.Id)
+            </div>
+        </div>
+    </form>
+</div>

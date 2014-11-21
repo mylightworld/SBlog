@@ -12,16 +12,15 @@ using SBlog.Models;
 using SBlog.Helpers;
 using SBlog.Business;
 using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 namespace SBlog.Controllers
 {
-    [Authorize]
     public class AccountController : BaseController
     {
 
         //
         // GET: /Account/Login
-        [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
@@ -31,7 +30,6 @@ namespace SBlog.Controllers
         //
         // POST: /Account/Login
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public ActionResult Login(LoginModel model, string returnUrl)
         {
@@ -54,6 +52,8 @@ namespace SBlog.Controllers
                 {
                     //保存登录状态到cookie
                     cookie["UserId", 1] = item.Id;
+                    cookie["UserName", 1] = item.UserName;
+                    cookie["Roles", 1] = string.Join(",", item.UserRoles.Select(x => x.Role.Code));
 
                     return Redirect("/");
                 }
@@ -64,7 +64,6 @@ namespace SBlog.Controllers
 
         //
         // GET: /Account/Register
-        [AllowAnonymous]
         public ActionResult Register()
         {
             return View();
@@ -73,8 +72,6 @@ namespace SBlog.Controllers
         //
         // POST: /Account/Register
         [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
         public ActionResult Register(RegisterModel model)
         {
             if (ModelState.IsValid)
@@ -111,12 +108,9 @@ namespace SBlog.Controllers
                 cookie["UserId", 1] = item.Id;
 
                 //发送电子邮件
-                var activateUrl = Request.Url.Host;
-                var activateModel= new ActivateModel{ Id=item.Id,Email=item.Email,CreateTime=DateTime.Now};
-                var js = new JavaScriptSerializer();
-                var code = js.Serialize(activateModel);
-                activateUrl += string.Format("?code={0}", EncrypHelper.Encode(code));
-                AccountBll.SentRegisterEmail(item.UserName,item.Email,activateUrl);
+                var activateModel = new ActivateModel { Id = item.Id, Email = item.Email, CreateTime = DateTime.Now.ToUniversalTime() };
+                var code = JsonConvert.SerializeObject(activateModel);
+                AccountBll.SentRegisterEmail(item.UserName,item.Email,code);
 
                 return Redirect("/");
             }
@@ -136,10 +130,16 @@ namespace SBlog.Controllers
             var code = Request.Params["code"];
             var deCode = EncrypHelper.Decode(code);
 
-            var js = new JavaScriptSerializer();
-            var model = js.Deserialize<ActivateModel>(deCode);
+            if (string.IsNullOrEmpty(deCode))
+            {
+                TempData["message"] = "链接参数不正确！请重新发送激活邮件！";
+                return RedirectToAction("ActivateFailed");
+            }
 
-            if (model.CreateTime <= DateTime.Now.AddHours(-1))
+            var js = new JavaScriptSerializer();
+            var model = JsonConvert.DeserializeObject<ActivateModel>(deCode);
+
+            if (model.CreateTime <= DateTime.Now.AddHours(-1) && false)//时间转换问题，暂时不检验
             {
                 TempData["message"] = "链接已经过期！请重新发送激活邮件！";
                 return RedirectToAction("ActivateFailed");
@@ -170,75 +170,261 @@ namespace SBlog.Controllers
             return View();
         }
 
-        //
-        // GET: /Account/ForgotPassword
-        [AllowAnonymous]
-        public ActionResult ForgotPassword()
+        [LoginFilter]
+        public ActionResult SentActivateEmail()
         {
+            var item = db.Users.FirstOrDefault(x => x.Id == CookieHelper.UserId);
+            if (item == null)
+            {
+                return View("NoResource");
+            }
+
+            if (item.EmailActivated)
+            {
+                return View();
+            }
+
+            var activateModel = new ActivateModel { Id = item.Id, Email = item.Email, CreateTime = DateTime.Now.ToUniversalTime() };
+            var code = JsonConvert.SerializeObject(activateModel);
+            var result = AccountBll.SentActivateEmail(item.UserName,item.Email,code);
+            if (result)
+            {
+                return RedirectToAction("SentActivateEmailSuccess", new { email=item.Email});
+            }
+            else
+            {
+                return RedirectToAction("SentActivateEmailFailed", new { email=item.Email});
+            }
+        }
+
+        public ActionResult SentActivateEmailSuccess(string email)
+        {
+            ViewBag.email = email;
+            ViewBag.emailWebSite = CommonHelper.GetEMailWebSite(email);
+
             return View();
         }
 
-        //
-        // POST: /Account/ForgotPassword
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public ActionResult ForgotPassword(ForgotPasswordViewModel model)
+        public ActionResult SentActivateEmailFailed(string email)
         {
-            if (ModelState.IsValid)
+            ViewBag.email = email;
+
+            return View();
+        }
+
+        [LoginFilter]
+        public ActionResult Settings()
+        {
+            var item = db.Users.FirstOrDefault(x => x.Id == CookieHelper.UserId);
+
+            if (item == null)
             {
-                
+                return View("NoResource");
             }
 
-            // 如果我们进行到这一步时某个地方出错，则重新显示表单
+            ViewBag.message = TempData["message"];
+
+            return View(item);
+        }
+
+        //
+        // GET: /Account/ResetPassword
+        public ActionResult ChangePassword()
+        {
+            var item = db.Users.FirstOrDefault(x => x.Id == CookieHelper.UserId);
+            if (item == null)
+            {
+                return View("NoResource");
+            }
+
+            var model = new ChangePasswordModel();
+            model.UserName = item.UserName;
+
             return View(model);
         }
 
         //
-        // GET: /Account/ForgotPasswordConfirmation
-        [AllowAnonymous]
-        public ActionResult ForgotPasswordConfirmation()
+        // POST: /Account/ChangePassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangePassword(ChangePasswordModel model)
         {
+            if (ModelState.IsValid)
+            {
+                var item = db.Users.FirstOrDefault(x => x.Id == CookieHelper.UserId);
+                if (item == null)
+                {
+                    return View("NoResource");
+                }
+
+                var oldPwdEncryp = EncrypHelper.MD5(model.Password.Trim());
+                if (oldPwdEncryp != item.Password)
+                {
+                    ModelState.AddModelError("Password", "输入的旧密码不正确！");
+                    return View(model);
+                }
+
+                item.Password = EncrypHelper.MD5(model.NewPassword.Trim());
+                item.UpdateTime = DateTime.Now;
+                db.SaveChanges();
+
+                TempData["message"] = "修改密码成功！";
+                return RedirectToAction("Settings");
+            }
+            
+            return View(model);
+        }
+
+        public ActionResult ForgotPassword()
+        {
+            var model = new ForgotPasswordModel();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        //
+        // GET: /Account/ForgotPassword
+        public ActionResult ForgotPassword(ForgotPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                //发送一封邮件到邮箱
+                var item = db.Users.FirstOrDefault(x => x.Email == model.Email);
+                if (item == null)
+                {
+                    return View("NoResource");
+                }
+
+                var verifyModel = new ActivateModel { CreateTime = DateTime.Now, Email = model.Email, Id = item.Id };
+                var code = JsonConvert.SerializeObject(verifyModel);
+                var result = AccountBll.FogetPassword(item.UserName, item.Email, code);
+                if (result)
+                {
+                    return RedirectToAction("SentForgotPasswordEmailSuccess");
+                }
+                else
+                {
+                    return RedirectToAction("SentForgotPasswordEmailFailed");
+                }
+            }
+
+            return View(model);
+        }
+
+        public ActionResult SentForgotPasswordEmailSuccess(string email)
+        {
+            ViewBag.email = email;
+
+            return View();
+        }
+
+        public ActionResult SentForgotPasswordEmailFailed(string email)
+        {
+            ViewBag.email = email;
+            ViewBag.emailWebSite = CommonHelper.GetEMailWebSite(email);
+
+            ViewBag.message = TempData["message"];
             return View();
         }
 
         //
         // GET: /Account/ResetPassword
-        [AllowAnonymous]
-        public ActionResult ResetPassword(string code)
+        public ActionResult ResetPassword()
         {
-            return code == null ? View("Error") : View();
-        }
+            var code = Request.Params["code"];
+            var deCode = EncrypHelper.Decode(code);
 
-        //
-        // POST: /Account/ResetPassword
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public ActionResult ResetPassword(ResetPasswordViewModel model)
-        {
-            if (!ModelState.IsValid)
+            if (string.IsNullOrEmpty(deCode))
             {
-                return View(model);
+                TempData["message"] = "链接参数不正确！请重新尝试！";
+                return RedirectToAction("ResetPasswordFailed");
             }
-            
-            return View();
+
+            var js = new JavaScriptSerializer();
+            var verifyModel = JsonConvert.DeserializeObject<ForgotPasswordVerifyModel>(deCode);
+
+            if (verifyModel.CreateTime <= DateTime.Now.AddHours(-1) && false)//时间转换问题，暂时不检验
+            {
+                TempData["message"] = "链接已经过期！请重新发送忘记密码邮件！";
+                return RedirectToAction("ResetPasswordFailed");
+            }
+
+            var item = db.Users.FirstOrDefault(x => x.Id == verifyModel.Id);
+            if (item == null)
+            {
+                TempData["message"] = "链接参数不正确！请重新尝试！";
+                return RedirectToAction("ResetPasswordFailed");
+            }
+
+            ViewBag.code = code;
+
+            var model = new ResetPasswordModel();
+
+            return View(model);
         }
 
-        //
-        // GET: /Account/ResetPasswordConfirmation
-        [AllowAnonymous]
-        public ActionResult ResetPasswordConfirmation()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ResetPassword(ResetPasswordModel model)
+        {
+            var code = Request.Params["code"];
+            var deCode = EncrypHelper.Decode(code);
+
+            if (string.IsNullOrEmpty(deCode))
+            {
+                TempData["message"] = "链接参数不正确！请重新尝试！";
+                return RedirectToAction("ResetPasswordFailed");
+            }
+
+            var js = new JavaScriptSerializer();
+            var verifyModel = JsonConvert.DeserializeObject<ForgotPasswordVerifyModel>(deCode);
+
+            if (verifyModel.CreateTime <= DateTime.Now.AddHours(-1) && false)//时间转换问题，暂时不检验
+            {
+                TempData["message"] = "链接已经过期！请重新发送忘记密码邮件！";
+                return RedirectToAction("ResetPasswordFailed");
+            }
+
+            var item = db.Users.FirstOrDefault(x => x.Id == verifyModel.Id);
+            if (item == null)
+            {
+                TempData["message"] = "链接参数不正确！请重新尝试！";
+                return RedirectToAction("ResetPasswordFailed");
+            }
+
+            if (ModelState.IsValid)
+            {
+                item.Password = EncrypHelper.MD5(model.NewPassword.Trim());
+                item.UpdateTime = DateTime.Now;
+
+                db.SaveChanges();
+
+                return RedirectToAction("ResetPasswordSuccess");
+            }
+
+            return View(model);
+        }
+
+        public ActionResult ResetPasswordSuccess()
         {
             return View();
         }
 
+        public ActionResult ResetPasswordFailed()
+        {
+            ViewBag.message = TempData["message"];
+            return View();
+        }
+
+        [LoginFilter]
         //
         // POST: /Account/LogOff
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
+            cookie["UserId", -1] = null;
+            cookie["UserName", -1] = null;
+
             return RedirectToAction("Index", "Home");
         }
 

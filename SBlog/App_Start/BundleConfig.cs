@@ -17,19 +17,26 @@ namespace SBlog
             // 使用要用于开发和学习的 Modernizr 的开发版本。然后，当你做好
             // 生产准备时，请使用 http://modernizr.com 上的生成工具来仅选择所需的测试。
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
-                        "~/Scripts/modernizr-*"));
+                        "~/scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js",
-                      "~/Scripts/respond.js"));
+                      "~/scripts/bootstrap.js",
+                      "~/scripts/respond.js"));
 
-            bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.css",
-                      "~/Content/site.css"));
+            bundles.Add(new StyleBundle("~/Content/css").Include("~/content/bootstrap.css").Include("~/content/site.css"));
+
+            bundles.Add(new StyleBundle("~/Content/admin/css").Include("~/content/bootstrap.css").Include("~/areas/admin/content/site.css"));
+
+            bundles.Add(new StyleBundle("~/content/admin/css/post").Include("~/areas/admin/content/post.css"));
+
+            bundles.Add(new ScriptBundle("~/bundles/admin/post").Include("~/areas/admin/scripts/post.js"));
+
+
+
 
             // 将 EnableOptimizations 设为 false 以进行调试。有关详细信息，
             // 请访问 http://go.microsoft.com/fwlink/?LinkId=301862
-            BundleTable.EnableOptimizations = true;
+            BundleTable.EnableOptimizations = false;
         }
     }
 }

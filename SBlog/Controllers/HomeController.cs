@@ -7,11 +7,18 @@ using System.Web.Mvc;
 
 namespace SBlog.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         public ActionResult Index()
         {
-            return View();
+            var page = 3;
+
+            var first = db.Posts.OrderByDescending(x => x.UpdateTime).FirstOrDefault();
+            ViewBag.first = first;
+
+            var items = db.Posts.OrderByDescending(x => x.UpdateTime).Skip(1).Take(page).ToList();
+
+            return View(items);
         }
 
         public ActionResult About()

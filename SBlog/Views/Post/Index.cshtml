@@ -1,0 +1,55 @@
+﻿@model PagedList.PagedList<SBlog.Models.Post>
+@{
+    ViewBag.Title = "所有文章";
+}
+
+<h2>所有文章</h2>
+
+<div class="row">
+    <ul>
+        @foreach(var item in Model)
+        {
+            <li>
+                <h3>@item.Title</h3>
+                <div>@Html.Raw(item.Description)</div>
+            </li>
+        }
+        @if (Model.Count <= 0)
+        {
+            @:暂时没有文章！！！额……<a href="/home/contact">骂骂他</a>
+        }
+    </ul>
+</div>
+@if (Model.Count > 0)
+{
+<div class="pager">
+    Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber)
+    of @Model.PageCount
+
+    @if (Model.HasPreviousPage)
+    {
+        @Html.ActionLink("<<", "Index", new { Page = 1 })
+        @Html.Raw(" ")
+        @Html.ActionLink("< 上一页", "Index", new { Page = Model.PageNumber - 1 })
+    }
+    else
+    {
+        @:<<
+        @Html.Raw(" ")
+        @:< 下一页
+}
+    @Html.Raw(" ")
+    @if (Model.HasNextPage)
+    {
+        @Html.ActionLink("下一页 >", "Index", new { Page = Model.PageNumber + 1 })
+        @Html.Raw(" ")
+        @Html.ActionLink(">>", "Index", new { Page = Model.PageCount })
+    }
+    else
+    {
+        @:下一页>
+        @Html.Raw(" ")
+        @:>>
+}
+</div>
+}

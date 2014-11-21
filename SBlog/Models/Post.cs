@@ -34,9 +34,11 @@ namespace SBlog.Models
         public Nullable<int> CategoryId { get; set; }
         public Nullable<System.DateTime> UpdateTime { get; set; }
         public int PraiseCount { get; set; }
+        public Nullable<int> UserId { get; set; }
     
         public virtual Category Category { get; set; }
         public virtual ICollection<PostPrais> PostPraises { get; set; }
+        public virtual User User { get; set; }
         public virtual ICollection<PostTag> PostTags { get; set; }
     }
 }

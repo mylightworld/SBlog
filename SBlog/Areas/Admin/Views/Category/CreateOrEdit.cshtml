@@ -1,0 +1,67 @@
+﻿@model SBlog.Models.CategoryModel
+@{
+}
+
+<h2>@(Model.Id==0?"创建分类":"修改分类"+Model.Name)</h2>
+<hr />
+
+<style type="text/css">
+    .categories-wrap .category {
+        margin-right:20px;
+    }
+</style>
+
+<div>
+    <form method="post" action="/admin/category/@(Model.Id==0?"create":"edit")/@Model.Id">
+        @Html.ValidationSummary("", new { @class = "text-danger" })
+        <div class="form-group row">
+            @Html.LabelFor(m => m.Name, new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group row">
+            @Html.LabelFor(m => m.ParentId, new { @class = "col-md-2 control-label" })
+            <div class="col-md-10">
+                @Html.Partial("_LoadCategories", (int)(ViewBag.cid ?? 0))
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <input type="submit" value="提交" /> | <a href="/admin/category">返回</a>
+                @Html.HiddenFor(x => x.Id)
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts{
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $(".categories-wrap").delegate(".category", "change", function (e) {
+            var $current = $(this);
+            if ($current.val() == "") {
+                $current.nextAll(".category").remove();
+                return false;
+            }
+            $.ajax({
+                url: "/admin/category/getsubcategories/" + $current.val(),
+                type: "post",
+                success: function (data, text) {
+                    //alert(data);
+                    //先清除所以子分类
+                    $current.nextAll(".category").remove();
+                    var $eles = $(data);
+                    if ($eles.find("option").length > 1) {//除去“请选择”之外，还有选项的情况才加载子类
+                        $eles.insertAfter($current);
+                    }
+                    else {
+                    }
+                }
+            })
+        });
+    });
+</script>    
+}

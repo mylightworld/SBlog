@@ -1,7 +1,18 @@
-﻿
-@{
-    ViewBag.Title = "ActivateFailed";
+﻿@{
+    ViewBag.Title = "激活账户成功！";
 }
 
-<h2>ActivateFailed</h2>
+
+<div>
+    <h3 class="icon-ok-sign">激活账户成功！</h3>
+    <div>
+        抱歉，激活账户失败!
+        @if(ViewBag.message != null)
+        {
+            @Html.Raw(ViewBag.message)
+        }
+        <a href="/account/sentactivateemail" class="btn btn-primary">重新发送激活邮件</a>
+    </div>
+</div>
+
 

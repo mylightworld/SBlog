@@ -1,0 +1,9 @@
+﻿@{
+    Layout = null;
+}
+
+@if (!string.IsNullOrEmpty(ViewBag.message))
+{
+    <div class="alert">@Html.Raw(ViewBag.message)</div>
+}
+

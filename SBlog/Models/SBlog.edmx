@@ -4,12 +4,12 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="SBlogModels.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="SBlogModels.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Categories">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="int" Nullable="false" />
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Name" Type="nvarchar" MaxLength="50" />
           <Property Name="ParentId" Type="int" />
           <Property Name="CategoriesStr" Type="nvarchar(max)" />
@@ -27,6 +27,17 @@
           <Property Name="Val" Type="nvarchar(max)" />
           <Property Name="CreateTime" Type="datetime" />
           <Property Name="UpdateTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Media">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="200" />
+          <Property Name="Type" Type="nvarchar" MaxLength="50" />
+          <Property Name="Url" Type="nvarchar" MaxLength="100" />
+          <Property Name="UserId" Type="int" />
+          <Property Name="CreateTime" Type="datetime" />
         </EntityType>
         <EntityType Name="PostPraises">
           <Key>
@@ -55,6 +66,7 @@
           <Property Name="CategoryId" Type="int" />
           <Property Name="UpdateTime" Type="datetime" />
           <Property Name="PraiseCount" Type="int" Nullable="false" />
+          <Property Name="UserId" Type="int" />
         </EntityType>
         <EntityType Name="PostTags">
           <Key>
@@ -72,6 +84,7 @@
           </Key>
           <Property Name="Id" Type="int" Nullable="false" />
           <Property Name="Name" Type="nvarchar" MaxLength="50" />
+          <Property Name="Code" Type="nvarchar" MaxLength="50" />
           <Property Name="CreateTime" Type="datetime" />
         </EntityType>
         <EntityType Name="Tags">
@@ -139,6 +152,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Media_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="Media" Type="Self.Media" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Media">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_PostPraises_Posts">
           <End Role="Posts" Type="Self.Posts" Multiplicity="0..1" />
           <End Role="PostPraises" Type="Self.PostPraises" Multiplicity="*" />
@@ -172,6 +197,18 @@
             </Principal>
             <Dependent Role="Posts">
               <PropertyRef Name="CategoryId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Posts_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="Posts" Type="Self.Posts" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Posts">
+              <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -250,6 +287,7 @@
         <EntityContainer Name="SBlogModelsStoreContainer">
           <EntitySet Name="Categories" EntityType="Self.Categories" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Configs" EntityType="Self.Configs" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Media" EntityType="Self.Media" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PostPraises" EntityType="Self.PostPraises" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Posts" EntityType="Self.Posts" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PostTags" EntityType="Self.PostTags" Schema="dbo" store:Type="Tables" />
@@ -265,6 +303,10 @@
             <End Role="Users" EntitySet="Users" />
             <End Role="Categories" EntitySet="Categories" />
           </AssociationSet>
+          <AssociationSet Name="FK_Media_Users" Association="Self.FK_Media_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Media" EntitySet="Media" />
+          </AssociationSet>
           <AssociationSet Name="FK_PostPraises_Posts" Association="Self.FK_PostPraises_Posts">
             <End Role="Posts" EntitySet="Posts" />
             <End Role="PostPraises" EntitySet="PostPraises" />
@@ -275,6 +317,10 @@
           </AssociationSet>
           <AssociationSet Name="FK_Posts_Categories" Association="Self.FK_Posts_Categories">
             <End Role="Categories" EntitySet="Categories" />
+            <End Role="Posts" EntitySet="Posts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Posts_Users" Association="Self.FK_Posts_Users">
+            <End Role="Users" EntitySet="Users" />
             <End Role="Posts" EntitySet="Posts" />
           </AssociationSet>
           <AssociationSet Name="FK_PostTags_Posts" Association="Self.FK_PostTags_Posts">
@@ -309,6 +355,7 @@
         <EntityContainer Name="SBlogEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Categories" EntityType="SBlogModels.Category" />
           <EntitySet Name="Configs" EntityType="SBlogModels.Config" />
+          <EntitySet Name="Media" EntityType="SBlogModels.Medium" />
           <EntitySet Name="PostPraises" EntityType="SBlogModels.PostPrais" />
           <EntitySet Name="Posts" EntityType="SBlogModels.Post" />
           <EntitySet Name="PostTags" EntityType="SBlogModels.PostTag" />
@@ -328,6 +375,10 @@
             <End Role="Category" EntitySet="Categories" />
             <End Role="Post" EntitySet="Posts" />
           </AssociationSet>
+          <AssociationSet Name="FK_Media_Users" Association="SBlogModels.FK_Media_Users">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Medium" EntitySet="Media" />
+          </AssociationSet>
           <AssociationSet Name="FK_PostPraises_Posts" Association="SBlogModels.FK_PostPraises_Posts">
             <End Role="Post" EntitySet="Posts" />
             <End Role="PostPrais" EntitySet="PostPraises" />
@@ -335,6 +386,10 @@
           <AssociationSet Name="FK_PostPraises_Users" Association="SBlogModels.FK_PostPraises_Users">
             <End Role="User" EntitySet="Users" />
             <End Role="PostPrais" EntitySet="PostPraises" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Posts_Users" Association="SBlogModels.FK_Posts_Users">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Post" EntitySet="Posts" />
           </AssociationSet>
           <AssociationSet Name="FK_PostTags_Posts" Association="SBlogModels.FK_PostTags_Posts">
             <End Role="Post" EntitySet="Posts" />
@@ -365,7 +420,7 @@
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" />
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="ParentId" Type="Int32" />
           <Property Name="CategoriesStr" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
@@ -387,6 +442,18 @@
           <Property Name="Val" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="CreateTime" Type="DateTime" Precision="3" />
           <Property Name="UpdateTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Medium">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Type" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Url" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="UserId" Type="Int32" />
+          <Property Name="CreateTime" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="User" Relationship="SBlogModels.FK_Media_Users" FromRole="Medium" ToRole="User" />
         </EntityType>
         <EntityType Name="PostPrais">
           <Key>
@@ -417,8 +484,10 @@
           <Property Name="CategoryId" Type="Int32" />
           <Property Name="UpdateTime" Type="DateTime" Precision="3" />
           <Property Name="PraiseCount" Type="Int32" Nullable="false" />
+          <Property Name="UserId" Type="Int32" />
           <NavigationProperty Name="Category" Relationship="SBlogModels.FK_Posts_Categories" FromRole="Post" ToRole="Category" />
           <NavigationProperty Name="PostPraises" Relationship="SBlogModels.FK_PostPraises_Posts" FromRole="Post" ToRole="PostPrais" />
+          <NavigationProperty Name="User" Relationship="SBlogModels.FK_Posts_Users" FromRole="Post" ToRole="User" />
           <NavigationProperty Name="PostTags" Relationship="SBlogModels.FK_PostTags_Posts" FromRole="Post" ToRole="PostTag" />
         </EntityType>
         <EntityType Name="PostTag">
@@ -440,6 +509,7 @@
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" />
           <Property Name="Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Code" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="CreateTime" Type="DateTime" Precision="3" />
           <NavigationProperty Name="UserRoles" Relationship="SBlogModels.FK_UserRoles_Roles" FromRole="Role" ToRole="UserRole" />
         </EntityType>
@@ -488,7 +558,9 @@
           <Property Name="EmailActivated" Type="Boolean" Nullable="false" />
           <Property Name="LoginErrorCount" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Categories" Relationship="SBlogModels.FK_Categories_Users" FromRole="User" ToRole="Category" />
+          <NavigationProperty Name="Media" Relationship="SBlogModels.FK_Media_Users" FromRole="User" ToRole="Medium" />
           <NavigationProperty Name="PostPraises" Relationship="SBlogModels.FK_PostPraises_Users" FromRole="User" ToRole="PostPrais" />
+          <NavigationProperty Name="Posts" Relationship="SBlogModels.FK_Posts_Users" FromRole="User" ToRole="Post" />
           <NavigationProperty Name="PostTags" Relationship="SBlogModels.FK_PostTags_Users" FromRole="User" ToRole="PostTag" />
           <NavigationProperty Name="Tags" Relationship="SBlogModels.FK_Tags_Users" FromRole="User" ToRole="Tag" />
           <NavigationProperty Name="UserRoles" Relationship="SBlogModels.FK_UserRoles_Users" FromRole="User" ToRole="UserRole" />
@@ -529,6 +601,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Media_Users">
+          <End Type="SBlogModels.User" Role="User" Multiplicity="0..1" />
+          <End Type="SBlogModels.Medium" Role="Medium" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Medium">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_PostPraises_Posts">
           <End Type="SBlogModels.Post" Role="Post" Multiplicity="0..1" />
           <End Type="SBlogModels.PostPrais" Role="PostPrais" Multiplicity="*" />
@@ -549,6 +633,18 @@
               <PropertyRef Name="Id" />
             </Principal>
             <Dependent Role="PostPrais">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Posts_Users">
+          <End Type="SBlogModels.User" Role="User" Multiplicity="0..1" />
+          <End Type="SBlogModels.Post" Role="Post" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Post">
               <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
@@ -656,6 +752,18 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="Media">
+            <EntityTypeMapping TypeName="SBlogModels.Medium">
+              <MappingFragment StoreEntitySet="Media">
+                <ScalarProperty Name="CreateTime" ColumnName="CreateTime" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Url" ColumnName="Url" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="PostPraises">
             <EntityTypeMapping TypeName="SBlogModels.PostPrais">
               <MappingFragment StoreEntitySet="PostPraises">
@@ -669,6 +777,7 @@
           <EntitySetMapping Name="Posts">
             <EntityTypeMapping TypeName="SBlogModels.Post">
               <MappingFragment StoreEntitySet="Posts">
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
                 <ScalarProperty Name="PraiseCount" ColumnName="PraiseCount" />
                 <ScalarProperty Name="UpdateTime" ColumnName="UpdateTime" />
                 <ScalarProperty Name="CategoryId" ColumnName="CategoryId" />
@@ -701,6 +810,7 @@
             <EntityTypeMapping TypeName="SBlogModels.Role">
               <MappingFragment StoreEntitySet="Roles">
                 <ScalarProperty Name="CreateTime" ColumnName="CreateTime" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>

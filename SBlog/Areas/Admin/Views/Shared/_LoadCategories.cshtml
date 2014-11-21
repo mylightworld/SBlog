@@ -1,0 +1,34 @@
+﻿@using SBlog.Models
+@model int
+@{
+    Layout = null;
+    var context = new SBlogEntities();
+    var currentCat = context.Categories.Find(Model);
+    var cids = new List<int> { 0 };
+    if (currentCat != null)
+    {
+        if (!string.IsNullOrEmpty(currentCat.CategoriesStr))
+        {
+            var paths = currentCat.CategoriesStr.Split(',');
+            int tmpCatId = 0;
+            for (var i = 0; i < paths.Length; i++)
+            {
+                var catIdStr = paths[i];
+                if (int.TryParse(catIdStr, out tmpCatId))
+                {
+                    cids.Add(tmpCatId);
+                }
+            }
+        }
+    }
+    cids.Add(0);//作为当前分类的子分类的默认选中值
+}
+
+<div class="categories-wrap">
+    @for (var i = 0; i < cids.Count - 1; i++)
+    {
+        var cid = cids[i];
+        ViewBag.selectedCid = cids[i + 1];
+        @Html.Partial("_LoadCategory", cid)
+    }
+</div>

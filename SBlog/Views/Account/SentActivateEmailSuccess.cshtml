@@ -1,0 +1,13 @@
+﻿@{
+    ViewBag.Title = "发送激活邮件成功，请点击邮件中的链接完成激活！";
+}
+
+<div>
+    <h3 class="icon-ok-sign">发送激活邮件成功，请点击邮件中的链接完成激活！</h3>
+    <div>
+        已经发送激活邮件到您的邮箱@(ViewBag.email)，现在就
+        <a href="@ViewBag.emailWebSite" rel="nofollow" target="_blank" class="btn btn-success">去激活</a>
+    </div>
+</div>
+
+

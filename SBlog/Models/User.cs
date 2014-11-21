@@ -17,7 +17,9 @@ namespace SBlog.Models
         public User()
         {
             this.Categories = new HashSet<Category>();
+            this.Media = new HashSet<Medium>();
             this.PostPraises = new HashSet<PostPrais>();
+            this.Posts = new HashSet<Post>();
             this.PostTags = new HashSet<PostTag>();
             this.Tags = new HashSet<Tag>();
             this.UserRoles = new HashSet<UserRole>();
@@ -43,7 +45,9 @@ namespace SBlog.Models
         public int LoginErrorCount { get; set; }
     
         public virtual ICollection<Category> Categories { get; set; }
+        public virtual ICollection<Medium> Media { get; set; }
         public virtual ICollection<PostPrais> PostPraises { get; set; }
+        public virtual ICollection<Post> Posts { get; set; }
         public virtual ICollection<PostTag> PostTags { get; set; }
         public virtual ICollection<Tag> Tags { get; set; }
         public virtual ICollection<UserRole> UserRoles { get; set; }

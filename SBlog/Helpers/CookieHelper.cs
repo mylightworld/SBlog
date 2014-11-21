@@ -37,6 +37,12 @@ namespace SBlog.Helpers
             }
 
             var value = cookie.Value;
+            if (string.IsNullOrEmpty(value) || !value.Contains("="))
+            {
+                return string.Empty;
+            }
+
+            value = value.Substring(value.IndexOf('=')+1);
             var decrypValue = EncrypHelper.Decode(value);
 
             return decrypValue;
@@ -54,7 +60,7 @@ namespace SBlog.Helpers
         {
             set
             {
-                this.SetCookie(name, value.ToString(), type);
+                this.SetCookie(name, value==null?string.Empty:value.ToString(), type);
             }
         }
 
@@ -75,6 +81,16 @@ namespace SBlog.Helpers
                 var co = new CookieHelper();
 
                 return Convert.ToInt32(co["UserId"]);
+            }
+        }
+
+        public static string UserName
+        {
+            get
+            {
+                var co = new CookieHelper();
+
+                return co["UserName"];
             }
         }
     }

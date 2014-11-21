@@ -27,6 +27,7 @@ namespace SBlog.Models
     
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Config> Configs { get; set; }
+        public virtual DbSet<Medium> Media { get; set; }
         public virtual DbSet<PostPrais> PostPraises { get; set; }
         public virtual DbSet<Post> Posts { get; set; }
         public virtual DbSet<PostTag> PostTags { get; set; }

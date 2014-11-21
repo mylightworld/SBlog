@@ -12,13 +12,16 @@ namespace SBlog.Helpers
 {
     public class EncrypHelper
     {
-        private static string _encrypKey { get { return ConfigurationManager.AppSettings["EncrypCode"].ToString(); } }
-        private static string _encrypIv { get { return ConfigurationManager.AppSettings["EncrypIv"].ToString(); } }
+        private static string _encrypKey { get { return (string)ConfigurationManager.AppSettings["EncrypKey"]; } }
+        private static string _encrypIv { get { return (string)ConfigurationManager.AppSettings["EncrypIv"]; } }
 
         public static string Encode(string data)
         {
             byte[] byKey = System.Text.ASCIIEncoding.ASCII.GetBytes(_encrypKey);
             byte[] byIV = System.Text.ASCIIEncoding.ASCII.GetBytes(_encrypIv);
+
+            //byte[] byKey = Encoding.Default.GetBytes(_encrypKey);
+            //byte[] byIV = Encoding.Default.GetBytes(_encrypIv);
 
             DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider();
             int i = cryptoProvider.KeySize;

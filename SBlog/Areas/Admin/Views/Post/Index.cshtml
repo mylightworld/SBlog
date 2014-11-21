@@ -1,0 +1,47 @@
+﻿@model List<SBlog.Models.Post>
+@{
+    ViewBag.Title = "文章列表";
+}
+
+<h2>文章列表</h2>
+<div class="actions">
+    <a href="/admin/post/create">发表文章</a>
+</div>
+<hr />
+
+@Html.Partial("_Message")
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>编号</th>
+                <th>标题</th>
+                <th>类别</th>
+                <th>创建时间</th>
+                <th>修改时间</th>
+                <th>浏览数</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Title</td>
+                    <td>@(item.Category == null ? "" : item.Category.Name)</td>
+                    <td>@item.CreateTime</td>
+                    <td>@item.UpdateTime</td>
+                    <td>@item.ViewCount</td>
+                    <td>
+                        <a href="/admin/post/edit/@item.Id" title="修改">修改</a>
+                        <a href="/admin/post/delete/@item.Id" onclick="return confirm('确定要删除吗？');" title="删除">删除</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+

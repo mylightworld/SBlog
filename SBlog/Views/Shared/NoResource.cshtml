@@ -1,0 +1,24 @@
+﻿@{
+    Layout = null;
+}
+
+<div>
+    @if (!string.IsNullOrEmpty(ViewBag.Title))
+    {
+        <h3>@Html.Raw(ViewBag.Title)</h3>
+    }
+    else
+    { 
+        <h3>出错啦</h3>
+    }
+    <div>
+        @if (!string.IsNullOrEmpty(ViewBag.message))
+        { 
+            @Html.Raw(ViewBag.message)
+        }
+        else
+        { 
+            @:没有找到相关资源！
+        }
+    </div>
+</div>

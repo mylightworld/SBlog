@@ -21,6 +21,7 @@ namespace SBlog.Models
     
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Code { get; set; }
         public Nullable<System.DateTime> CreateTime { get; set; }
     
         public virtual ICollection<UserRole> UserRoles { get; set; }
